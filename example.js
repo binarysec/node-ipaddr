@@ -1,0 +1,16 @@
+var ippool = require('./index.js');
+var pool = ippool();
+pool.add("10.1.1.0/28");
+pool.add("10.1.2.0/28");
+pool.add("10.1.3.0/24");
+pool.add("10.1.0.0/16");
+pool.add("10.0.0.0/15");
+pool.add("10.1.3.0/24");
+pool.add("1032:44FE:7654::1234/24");
+pool.add("1032:44FE:7654::1234/23");
+pool.add("1032:44FE:7654::1234/25");
+pool.add("2032:44FE:7654::1234/23");
+pool.add("3032:44FE:7654::1234/100");
+pool.add("3032:44FE:7654:FFFF:FFFF::1234/100");
+pool.dump();
+pool.search("10.1.1.0/28");
