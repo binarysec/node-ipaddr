@@ -1,8 +1,8 @@
 all: build
 
-build: build/Release/tuntap.node
+build: build/Release/ipaddr.node
 
-build/Release/tuntap.node: src/*.cc src/*.hh
+build/Release/ipaddr.node: src/*.cc src/*.hh
 	node-gyp build
 
 config: configure
