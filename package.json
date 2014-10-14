@@ -1,6 +1,6 @@
 {
   "name": "node-ipaddr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create ip address/masks pools and check if IPs and Networks are included inside",
   "author": "Maxime Ferrino",
   "repository": {
