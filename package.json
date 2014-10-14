@@ -1,0 +1,34 @@
+{
+  "name": "node-ipaddr",
+  "version": "1.0.0",
+  "description": "Create ip address/masks pools and check if IPs and Networks are included inside",
+  "author": "Maxime Ferrino",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/binarysec/node-ipaddr.git"
+  },
+  "keywords": [
+    "ip",
+    "ipv4",
+    "address",
+    "pool",
+    "set",
+    "range",
+    "mask",
+    "network",
+    "match",
+    "compare",
+    "filter",
+    "contain"
+  ],
+  "main": "./index.js",
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/binarysec/node-ipaddr/issues"
+  },
+  "homepage": "https://github.com/binarysec/node-ipaddr",
+  "license": "GPLv3"
+}
