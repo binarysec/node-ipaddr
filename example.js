@@ -12,5 +12,5 @@ pool.add("1032:44FE:7654::1234/25");
 pool.add("2032:44FE:7654::1234/23");
 pool.add("3032:44FE:7654::1234/100");
 pool.add("3032:44FE:7654:FFFF:FFFF::1234/100");
-pool.dump();
+console.log(pool.dump());
 pool.search("10.1.1.0/28");

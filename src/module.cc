@@ -26,8 +26,7 @@ using namespace v8;
 void InitAll(Handle<Object> exports, Handle<Object> module) {
 	Ippool::Init();
 	
-	module->Set(String::NewSymbol("exports"),
-		FunctionTemplate::New(Ippool::NewInstance)->GetFunction());
+	NODE_SET_METHOD(module, "exports", Ippool::NewInstance);
 }
 
 NODE_MODULE(ippool, InitAll)

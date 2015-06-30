@@ -1,18 +1,28 @@
 #ifndef _H_IPPOOL_IPPOOL
 #define _H_IPPOOL_IPPOOL
 
+#include <node_object_wrap.h>
+
 #define IPPOOL_BIT_1(data, i) (data)[(i)/8] |= (1 << (7 - (i) % 8));
 
 class Ippool : public node::ObjectWrap {
 	public:
 		static void Init();
-		static v8::Handle<v8::Value> NewInstance(const v8::Arguments& args);
+		static void NewInstance(const v8::FunctionCallbackInfo<v8::Value>& args);
 		
 	private:
 		template <int L>
 		struct Range {
-			uint8_t addr[L];
-			uint8_t mask[L];
+			union {
+				uint8_t addr[L];
+				uint32_t addr32[0];
+				uint64_t addr64[0];
+			};
+			union {
+				uint8_t mask[L];
+				uint32_t mask32[0];
+				uint64_t mask64[0];
+			};
 			int maskLen;
 		};
 		
@@ -31,15 +41,15 @@ class Ippool : public node::ObjectWrap {
 			Range<16> v6;
 		};
 		
-		static v8::Handle<v8::Value> add(const v8::Arguments& args);
-		static v8::Handle<v8::Value> addv4(const v8::Arguments& args);
-		static v8::Handle<v8::Value> addv6(const v8::Arguments& args);
-		static v8::Handle<v8::Value> search(const v8::Arguments& args);
-		static v8::Handle<v8::Value> searchv4(const v8::Arguments& args);
-		static v8::Handle<v8::Value> searchv6(const v8::Arguments& args);
-		static v8::Handle<v8::Value> dump(const v8::Arguments& args);
+		static void add(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void addv4(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void addv6(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void search(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void searchv4(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void searchv6(const v8::FunctionCallbackInfo<v8::Value>& args);
+		static void dump(const v8::FunctionCallbackInfo<v8::Value>& args);
 		
-		static v8::Handle<v8::Value> New(const v8::Arguments& args);
+		static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 		static v8::Persistent<v8::Function> constructor;
 		
 		static std::string IpToString(const RangeV4 &range);

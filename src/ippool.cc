@@ -26,16 +26,15 @@ using namespace v8;
 Persistent<Function> Ippool::constructor;
 
 void Ippool::Init() {
+	Isolate* isolate = Isolate::GetCurrent();
 	// Prepare constructor template
-	Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-	tpl->SetClassName(String::NewSymbol("ippool"));
+	Local<FunctionTemplate> tpl = FunctionTemplate::New(isolate, New);
+	tpl->SetClassName(String::NewFromUtf8(isolate, "ippool"));
 	tpl->InstanceTemplate()->SetInternalFieldCount(1);
-	
+
+	// Prototype
 #define SETFUNC(_name_) \
-	tpl->PrototypeTemplate()->Set( \
-		String::NewSymbol(#_name_), \
-		FunctionTemplate::New(_name_)->GetFunction() \
-	);
+	NODE_SET_PROTOTYPE_METHOD(tpl, #_name_, _name_);
 	SETFUNC(add)
 	SETFUNC(addv4)
 	SETFUNC(addv6)
@@ -44,44 +43,50 @@ void Ippool::Init() {
 	SETFUNC(searchv6)
 	SETFUNC(dump)
 	
-	constructor = Persistent<Function>::New(tpl->GetFunction());
+	constructor.Reset(isolate, tpl->GetFunction());
 }
 
-v8::Handle<v8::Value> Ippool::New(const v8::Arguments& args) {
-	HandleScope scope;
+void Ippool::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	
 	if(args.IsConstructCall()) {
 		// Invoked as constructor: `new Ippool(...)`
-		Ippool* obj;
-		obj = new Ippool();
-		obj->Wrap(args.This());
-		
-		return(args.This());
+		Ippool* obj = new Ippool();
+		obj->Wrap(args.Holder());
+		args.GetReturnValue().Set(args.Holder());
 	}
 	else {
 		// Invoked as plain function `Ippool(...)`, turn into construct call.
-		const unsigned argc = 0;
-		Handle<Value> *argv = NULL;
-		return(scope.Close(constructor->NewInstance(argc, argv)));
+		const int argc = 0;
+		Local<Value> argv[argc] = { };
+		Local<Function> cons = Local<Function>::New(isolate, constructor);
+		args.GetReturnValue().Set(cons->NewInstance(argc, argv));
 	}
 }
 
-Handle<Value> Ippool::NewInstance(const Arguments& args) {
-	HandleScope scope;
+void Ippool::NewInstance(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	
 	const unsigned argc = 0;
-	Handle<Value> *argv = NULL;
-	Local<Object> instance = constructor->NewInstance(argc, argv);
+	Handle<Value> argv[argc] = { };
+	Local<Function> cons = Local<Function>::New(isolate, constructor);
+	Local<Object> instance = cons->NewInstance(argc, argv);
 	
-	return(scope.Close(instance));
+	args.GetReturnValue().Set(instance);
 }
 
-Handle<Value> Ippool::add(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::add(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	
-	if(args.Length() == 0)
-		return(scope.Close(args.This()));
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
+	
+	if(args.Length() == 0) {
+		args.GetReturnValue().Set(args.Holder());
+		return;
+	}
 	
 	for(int i = 0 ; i < args.Length() ; i++) {
 		if(args[i]->IsString()) {
@@ -89,15 +94,20 @@ Handle<Value> Ippool::add(const Arguments& args) {
 		}
 	}
 	
-	return(scope.Close(args.This()));
+	args.GetReturnValue().Set(args.Holder());
+	return;
 }
 
-Handle<Value> Ippool::addv4(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::addv4(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	
-	if(args.Length() == 0)
-		return(scope.Close(args.This()));
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
+	
+	if(args.Length() == 0) {
+		args.GetReturnValue().Set(args.Holder());
+		return;
+	}
 	
 	for(int i = 0 ; i < args.Length() ; i++) {
 		if(args[i]->IsString()) {
@@ -105,15 +115,20 @@ Handle<Value> Ippool::addv4(const Arguments& args) {
 		}
 	}
 	
-	return(scope.Close(args.This()));
+	args.GetReturnValue().Set(args.Holder());
+	return;
 }
 
-Handle<Value> Ippool::addv6(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::addv6(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
 	
-	if(args.Length() == 0)
-		return(scope.Close(args.This()));
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
+	
+	if(args.Length() == 0) {
+		args.GetReturnValue().Set(args.Holder());
+		return;
+	}
 	
 	for(int i = 0 ; i < args.Length() ; i++) {
 		if(args[i]->IsString()) {
@@ -121,102 +136,117 @@ Handle<Value> Ippool::addv6(const Arguments& args) {
 		}
 	}
 	
-	return(scope.Close(args.This()));
+	args.GetReturnValue().Set(args.Holder());
+	return;
 }
 
-Handle<Value> Ippool::search(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::search(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+	
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
 	Ippool::GenericRange gr;
 	int version;
 	
 	if(args.Length() != 1) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument count!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument count!")));
+		return;
 	}
 	
 	if(!args[0]->IsString()) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument type!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument type!")));
+		return;
 	}
 	
 	version = Ippool::GetAddr(args[0]->ToString(), gr);
 	
 	if(version == 4)
-		return(scope.Close(Boolean::New(obj->searchv4(gr.v4))));
+		args.GetReturnValue().Set(Boolean::New(isolate, obj->searchv4(gr.v4)));
 	else if(version == 6)
-		return(scope.Close(Boolean::New(obj->searchv6(gr.v6))));
+		args.GetReturnValue().Set(Boolean::New(isolate, obj->searchv6(gr.v6)));
 	else
-		return(scope.Close(Boolean::New(false)));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 }
 
-Handle<Value> Ippool::searchv4(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::searchv4(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+	
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
 	Ippool::GenericRange gr;
 	int version;
 	
 	if(args.Length() != 1) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument count!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument count!")));
+		return;
 	}
 	
 	if(!args[0]->IsString()) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument type!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument type!")));
+		return;
 	}
 	
 	version = Ippool::GetAddr(args[0]->ToString(), gr, 4);
 	
 	if(version == 4)
-		return(scope.Close(Boolean::New(obj->searchv4(gr.v4))));
+		args.GetReturnValue().Set(Boolean::New(isolate, obj->searchv4(gr.v4)));
 	else
-		return(scope.Close(Boolean::New(false)));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 }
 
-Handle<Value> Ippool::searchv6(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
+void Ippool::searchv6(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+	
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
 	Ippool::GenericRange gr;
 	int version;
 	
 	if(args.Length() != 1) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument count!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument count!")));
+		return;
 	}
 	
 	if(!args[0]->IsString()) {
-		return(ThrowException(Exception::Error(String::New("Invalid argument type!"))));
+		isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "Invalid argument type!")));
+		return;
 	}
 	
 	version = Ippool::GetAddr(args[0]->ToString(), gr, 6);
 	
 	if(version == 6)
-		return(scope.Close(Boolean::New(obj->searchv6(gr.v6))));
+		args.GetReturnValue().Set(Boolean::New(isolate, obj->searchv6(gr.v6)));
 	else
-		return(scope.Close(Boolean::New(false)));
+		args.GetReturnValue().Set(Boolean::New(isolate, false));
 }
 
-Handle<Value> Ippool::dump(const Arguments& args) {
-	HandleScope scope;
-	Ippool *obj = node::ObjectWrap::Unwrap<Ippool>(args.This());
-	Local<Object> ret = Object::New();
+void Ippool::dump(const v8::FunctionCallbackInfo<v8::Value>& args) {
+	Isolate* isolate = Isolate::GetCurrent();
+	HandleScope scope(isolate);
+	
+	Ippool *obj = ObjectWrap::Unwrap<Ippool>(args.Holder());
+	Local<Object> ret = Object::New(isolate);
 	Local<Array> arr;
 	std::string strBuffer;
 	
 	
-	arr = Array::New(obj->v4pool.size());
+	arr = Array::New(isolate, obj->v4pool.size());
 	for(int i = 0, l = obj->v4pool.size() ; i < l ; i++) {
 		strBuffer = Ippool::IpToString(obj->v4pool[i]);
-		arr->Set(i, String::New(strBuffer.c_str()));
+		arr->Set(i, String::NewFromUtf8(isolate, strBuffer.c_str()));
 	}
 	
-	ret->Set(String::New("v4"), arr);
+	ret->Set(String::NewFromUtf8(isolate, "v4"), arr);
 	
-	arr = Array::New(obj->v6pool.size());
+	arr = Array::New(isolate, obj->v6pool.size());
 	for(int i = 0, l = obj->v6pool.size() ; i < l ; i++) {
 		strBuffer = Ippool::IpToString(obj->v6pool[i]);
-		arr->Set(i, String::New(strBuffer.c_str()));
+		arr->Set(i, String::NewFromUtf8(isolate, strBuffer.c_str()));
 	}
 	
-	ret->Set(String::New("v6"), arr);
+	ret->Set(String::NewFromUtf8(isolate, "v6"), arr);
 	
-	return(scope.Close(ret));
+	args.GetReturnValue().Set(ret);
 }
 
 std::string Ippool::IpToString(const Ippool::RangeV4 &range) {
@@ -248,7 +278,7 @@ std::string Ippool::IpToString(const Ippool::RangeV6 &range) {
 }
 
 int Ippool::GetAddr(Handle<String> str, Ippool::GenericRange &gr, int version) {
-	String::AsciiValue ip(str);
+	String::Utf8Value ip(str);
 	return(Ippool::GetAddr(*ip, gr, version));
 }
 
@@ -266,17 +296,17 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 		sub = str.substr(0, pos);
 	
 	if(version == 4) {
-		if(uv_inet_pton(AF_INET, sub.c_str(), &address_buffer).code != UV_OK)
+		if(uv_inet_pton(AF_INET, sub.c_str(), &address_buffer) != 0)
 			return(0);
 	}
 	else if(version == 6) {
-		if(uv_inet_pton(AF_INET6, sub.c_str(), &address_buffer).code != UV_OK)
+		if(uv_inet_pton(AF_INET6, sub.c_str(), &address_buffer) != 0)
 			return(0);
 	}
 	else {
-		if(uv_inet_pton(AF_INET, sub.c_str(), &address_buffer).code == UV_OK)
+		if(uv_inet_pton(AF_INET, sub.c_str(), &address_buffer) == 0)
 			version = 4;
-		else if(uv_inet_pton(AF_INET6, sub.c_str(), &address_buffer).code == UV_OK)
+		else if(uv_inet_pton(AF_INET6, sub.c_str(), &address_buffer) == 0)
 			version = 6;
 		else
 			return(0);
@@ -302,7 +332,7 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 				IPPOOL_BIT_1(gr.v4.mask, i)
 		}
 		
-		((uint32_t*)gr.v4.addr)[0] &= ((uint32_t*)gr.v4.mask)[0];
+		gr.v4.addr32[0] &= gr.v4.mask32[0];
 		
 		gr.v4.maskLen = mask;
 		//printf("Addr: %02X", gr.v4.addr[0]);
@@ -321,8 +351,8 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 				IPPOOL_BIT_1(gr.v6.mask, i)
 		}
 		
-		((uint64_t*)gr.v6.addr)[0] &= ((uint64_t*)gr.v6.mask)[0];
-		((uint64_t*)gr.v6.addr)[1] &= ((uint64_t*)gr.v6.mask)[1];
+		gr.v6.addr64[0] &= gr.v6.mask64[0];
+		gr.v6.addr64[1] &= gr.v6.mask64[1];
 		
 		gr.v6.maskLen = mask;
 		//printf("Addr: %02X", gr.v6.addr[0]);
@@ -338,7 +368,7 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 }
 
 bool Ippool::StoreIpAddr(Handle<String> str, int version) {
-	String::AsciiValue ip(str);
+	String::Utf8Value ip(str);
 	return(this->StoreIpAddr(*ip, version));
 }
 
@@ -407,7 +437,7 @@ int Ippool::ParseMask(const std::string &maskStr, int version) {
 	
 	if(version == 4) {
 		if(maskStr.find('.') != std::string::npos) {
-			if(uv_inet_pton(AF_INET, maskStr.c_str(), &address_buffer).code == UV_OK) {
+			if(uv_inet_pton(AF_INET, maskStr.c_str(), &address_buffer) == 0) {
 				for(int i = 0 ; i < 32 ; i++) {
 					if((address_buffer[i/8] & (1 << (i%8))) == 0)
 						return(i+1);
@@ -421,7 +451,7 @@ int Ippool::ParseMask(const std::string &maskStr, int version) {
 	}
 	else if(version == 6) {
 		if(maskStr.find(':') != std::string::npos) {
-			if(uv_inet_pton(AF_INET6, maskStr.c_str(), &address_buffer).code == UV_OK) {
+			if(uv_inet_pton(AF_INET6, maskStr.c_str(), &address_buffer) == 0) {
 				for(int i = 0 ; i < 128 ; i++) {
 					if((address_buffer[i/8] & (1 << (i%8))) == 0)
 						return(i+1);
