@@ -375,7 +375,7 @@ bool Ippool::StoreIpAddr(Handle<String> str, int version) {
 bool Ippool::StoreIpAddr1(const std::string &str, int version) {
 	Ippool::GenericRange gr;
 	
-	version = Ippool::GetAddr(str, gr, version);
+	version = Ippool::GetAddr1(str, gr, version);
 	
 	if(version == 4) {
 		std::vector<RangeV4>::iterator it;
