@@ -279,10 +279,10 @@ std::string Ippool::IpToString(const Ippool::RangeV6 &range) {
 
 int Ippool::GetAddr(Handle<String> str, Ippool::GenericRange &gr, int version) {
 	String::Utf8Value ip(str);
-	return(Ippool::GetAddr(*ip, gr, version));
+	return(Ippool::GetAddr1(*ip, gr, version));
 }
 
-int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int version) {
+int Ippool::GetAddr1(const std::string &str, Ippool::GenericRange &gr, int version) {
 	char address_buffer[sizeof(struct in6_addr)];
 	std::string sub;
 	size_t pos;
@@ -369,13 +369,13 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 
 bool Ippool::StoreIpAddr(Handle<String> str, int version) {
 	String::Utf8Value ip(str);
-	return(this->StoreIpAddr(*ip, version));
+	return(this->StoreIpAddr1(*ip, version));
 }
 
-bool Ippool::StoreIpAddr(const std::string &str, int version) {
+bool Ippool::StoreIpAddr1(const std::string &str, int version) {
 	Ippool::GenericRange gr;
 	
-	version = Ippool::GetAddr(str, gr, version);
+	version = Ippool::GetAddr1(str, gr, version);
 	
 	if(version == 4) {
 		std::vector<RangeV4>::iterator it;
