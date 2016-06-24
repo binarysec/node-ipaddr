@@ -55,9 +55,9 @@ class Ippool : public node::ObjectWrap {
 		static std::string IpToString(const RangeV4 &range);
 		static std::string IpToString(const RangeV6 &range);
 		static int GetAddr(v8::Handle<v8::String> str, GenericRange &gr, int version = 0);
-		static int GetAddr1(const std::string &str, GenericRange &gr, int version = 0);
+		static int GetAddr(const std::string &str, GenericRange &gr, int version = 0);
 		bool StoreIpAddr(v8::Handle<v8::String> str, int version = 0);
-		bool StoreIpAddr1(const std::string &str, int version = 0);
+		bool StoreIpAddr(const std::string &str, int version = 0);
 		static int ParseMask(const std::string &maskStr, int version);
 		bool searchv4(const RangeV4 &range);
 		bool searchv6(const RangeV6 &range);
