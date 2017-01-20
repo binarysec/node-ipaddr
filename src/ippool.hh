@@ -3,6 +3,7 @@
 
 #include <node_object_wrap.h>
 
+#define IPPOOL_WANT_6TO4	1
 #define IPPOOL_BIT_1(data, i) (data)[(i)/8] |= (1 << (7 - (i) % 8));
 
 class Ippool : public node::ObjectWrap {

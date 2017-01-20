@@ -335,13 +335,6 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 		gr.v4.addr32[0] &= gr.v4.mask32[0];
 		
 		gr.v4.maskLen = mask;
-		//printf("Addr: %02X", gr.v4.addr[0]);
-		//for(size_t i = 1 ; i < sizeof(gr.v4.addr) ; i++)
-			//printf(".%02X", gr.v4.addr[i]);
-		//printf("\nMask: %02X", gr.v4.mask[0]);
-		//for(size_t i = 1 ; i < sizeof(gr.v4.mask) ; i++)
-			//printf(".%02X", gr.v4.mask[i]);
-		//printf("\nMaskLen: %d\n", gr.v4.maskLen);
 	}
 	else if(version == 6) {
 		memcpy(gr.v6.addr, address_buffer, sizeof(gr.v6.addr));
@@ -355,13 +348,59 @@ int Ippool::GetAddr(const std::string &str, Ippool::GenericRange &gr, int versio
 		gr.v6.addr64[1] &= gr.v6.mask64[1];
 		
 		gr.v6.maskLen = mask;
-		//printf("Addr: %02X", gr.v6.addr[0]);
-		//for(size_t i = 1 ; i < sizeof(gr.v6.addr) ; i++)
-			//printf(".%02X", gr.v6.addr[i]);
-		//printf("\nMask: %02X", gr.v6.mask[0]);
-		//for(size_t i = 1 ; i < sizeof(gr.v6.mask) ; i++)
-			//printf(".%02X", gr.v6.mask[i]);
-		//printf("\nMaskLen: %d\n", gr.v6.maskLen);
+
+#ifdef IPPOOL_WANT_6TO4
+		uint8_t cmap1_cmp[] = {
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0
+		};
+		uint16_t cmap1_mask = 0xFFF0;
+		uint8_t cmap2_cmp[] = {
+			0, 0, 0,    0,
+			0, 0, 0,    0,
+			0, 0, 0xFF, 0xFF,
+			0, 0, 0,    0
+		};
+		uint16_t cmap2_mask = 0xFFF0;
+		uint8_t cmap3_cmp[] = {
+			0x20, 0x02, 0, 0,
+			0,    0,    0, 0,
+			0,    0,    0, 0,
+			0,    0,    0, 0
+		};
+		uint16_t cmap3_mask = 0xC000;
+		
+		bool ok;
+#define QCOMP(cmp_, mask_, v4off_) \
+		ok = true; \
+		for(int i = 0 ; i < 16 && ok ; i++) { \
+			if((mask_ & (1 << (15 - i)))) { \
+				if(gr.v6.addr[i] != cmp_[i]) \
+					ok = false; \
+			} \
+		} \
+		if(ok) { \
+			version = 4;\
+			uint32_t ipv4 = (gr.v6.addr[v4off_+3] << 24) | (gr.v6.addr[v4off_+2] << 16) | (gr.v6.addr[v4off_+1] << 8) | gr.v6.addr[v4off_]; \
+			gr.v4.addr32[0] = ipv4; \
+			gr.v4.maskLen = mask = mask - (v4off_ * 8); \
+			if(mask > 32) \
+				mask = 32; \
+			gr.v4.maskLen = mask; \
+			for(int i = 0 ; i < mask ; i++) { \
+				if(i < mask) \
+					IPPOOL_BIT_1(gr.v4.mask, i) \
+			} \
+			return(version); \
+		}
+		
+		QCOMP(cmap1_cmp, cmap1_mask, 12)
+		QCOMP(cmap2_cmp, cmap2_mask, 12)
+		QCOMP(cmap3_cmp, cmap3_mask, 2)
+#undef QCOMP
+#endif
 	}
 	
 	return(version);
