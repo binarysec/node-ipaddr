@@ -20,6 +20,7 @@
  */
 
 #include "module.hh"
+#include "node_v8_macros.hh"
 
 using namespace v8;
 
@@ -61,7 +62,7 @@ void Ippool::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
 		const int argc = 0;
 		Local<Value> argv[argc] = { };
 		Local<Function> cons = Local<Function>::New(isolate, constructor);
-		args.GetReturnValue().Set(cons->NewInstance(argc, argv));
+		args.GetReturnValue().Set(NVM_NEW_INSTANCE(cons, isolate, argc, argv));
 	}
 }
 
@@ -72,7 +73,7 @@ void Ippool::NewInstance(const v8::FunctionCallbackInfo<v8::Value>& args) {
 	const unsigned argc = 0;
 	Handle<Value> argv[argc] = { };
 	Local<Function> cons = Local<Function>::New(isolate, constructor);
-	Local<Object> instance = cons->NewInstance(argc, argv);
+	Local<Object> instance = NVM_NEW_INSTANCE(cons, isolate, argc, argv);
 	
 	args.GetReturnValue().Set(instance);
 }
