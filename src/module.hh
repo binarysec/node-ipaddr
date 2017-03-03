@@ -23,7 +23,7 @@
 #define _H_IPPOOL_MODULE
 
 #include <node.h>
-#include <node/uv.h>
+#include <uv.h>
 
 #include <string>
 
